@@ -1,0 +1,27 @@
+{
+  "source": "reference/reference.mp4",
+  "canvas": {"w": 720, "h": 1280, "fps": 30, "duration": 12.3},
+  "bgm": {"file": "reference/bgm.m4a", "silences": [[8.07, 8.67], [9.83, 10.52]]},
+  "clips": [
+    {"name": "clip1_bridge_night", "start": 0.00, "end": 1.83},
+    {"name": "clip2_rainy_street", "start": 1.83, "end": 4.23},
+    {"name": "clip3_car_window",   "start": 4.23, "end": 6.53},
+    {"name": "clip4_tram",         "start": 6.53, "end": 8.30},
+    {"name": "outro_dim_ig",       "start": 8.30, "end": 12.30}
+  ],
+  "flash_pattern_offsets_from_clip_start": [
+    [0.17, 0.30], [0.34, 0.44], [0.84, 0.90], [0.97, 1.07],
+    [1.20, 1.24], [1.40, 1.54], [1.57, 1.67], [2.07, 2.14], [2.20, 2.30]
+  ],
+  "flashes_absolute": [
+    [0.20,0.33],[0.37,0.47],[0.87,0.93],[1.00,1.10],[1.23,1.27],[1.43,1.57],[1.60,1.70],
+    [2.00,2.13],[2.17,2.27],[2.67,2.73],[2.80,2.90],[3.03,3.07],[3.23,3.37],[3.40,3.50],[3.90,3.97],[4.03,4.13],
+    [4.40,4.53],[4.57,4.67],[5.07,5.13],[5.20,5.30],[5.43,5.47],[5.63,5.77],[5.80,5.90],[6.30,6.37],[6.43,6.53],
+    [6.70,6.83],[6.87,6.97],[7.37,7.43],[7.50,7.60],[7.73,7.77],[7.93,8.07],[8.10,8.20]
+  ],
+  "text": {
+    "caption": {"text": "Me after playing my role in everyone's life", "y_frac": 0.175, "align": "center", "color": "#F3E9C6", "size_frac_of_width": 0.027, "font": "sans (SF Pro / Inter medium)", "span": [0.0, 12.3], "dims_in_outro": true},
+    "ig_icon_corner": {"x_frac": 0.895, "y_frac": 0.263, "style": "white outline glyph, small, flickers pink/gradient with flashes", "span": [0.17, 8.30]},
+    "outro": {"logo": "Instagram glyph centered (x 0.5, y 0.475), animated pink-orange-purple gradient sweep", "handle": "@HANDLE (bold condensed caps, white, y 0.57)", "bg": "last clip continues, darkened ~65%"}
+  }
+}
