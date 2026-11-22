@@ -1,0 +1,628 @@
+{
+ "duration": 32.451,
+ "fps": 30,
+ "bpm": 100,
+ "chunks": [
+  {
+   "start": 0.45,
+   "end": 1.354,
+   "scene": "hook",
+   "words": [
+    {
+     "w": "Claude",
+     "accent": true,
+     "t": 0.45
+    },
+    {
+     "w": "can",
+     "accent": false,
+     "t": 0.852
+    },
+    {
+     "w": "now",
+     "accent": false,
+     "t": 1.103
+    }
+   ]
+  },
+  {
+   "start": 1.474,
+   "end": 2.48,
+   "scene": "hook",
+   "words": [
+    {
+     "w": "edit",
+     "accent": false,
+     "t": 1.474
+    },
+    {
+     "w": "your",
+     "accent": false,
+     "t": 1.762
+    },
+    {
+     "w": "reels*.",
+     "accent": true,
+     "t": 2.049
+    }
+   ]
+  },
+  {
+   "start": 2.86,
+   "end": 3.513,
+   "scene": "reference",
+   "words": [
+    {
+     "w": "You",
+     "accent": false,
+     "t": 2.86
+    },
+    {
+     "w": "send",
+     "accent": false,
+     "t": 3.078
+    },
+    {
+     "w": "it",
+     "accent": false,
+     "t": 3.339
+    }
+   ]
+  },
+  {
+   "start": 3.633,
+   "end": 4.789,
+   "scene": "reference",
+   "words": [
+    {
+     "w": "one",
+     "accent": false,
+     "t": 3.633
+    },
+    {
+     "w": "reference",
+     "accent": true,
+     "t": 3.874
+    },
+    {
+     "w": "video,",
+     "accent": false,
+     "t": 4.404
+    }
+   ]
+  },
+  {
+   "start": 4.909,
+   "end": 5.877,
+   "scene": "reference",
+   "words": [
+    {
+     "w": "and",
+     "accent": false,
+     "t": 4.909
+    },
+    {
+     "w": "it",
+     "accent": false,
+     "t": 5.119
+    },
+    {
+     "w": "breaks",
+     "accent": false,
+     "t": 5.288
+    },
+    {
+     "w": "down",
+     "accent": false,
+     "t": 5.624
+    }
+   ]
+  },
+  {
+   "start": 5.997,
+   "end": 6.638,
+   "scene": "reference",
+   "words": [
+    {
+     "w": "everything.",
+     "accent": true,
+     "t": 5.997
+    }
+   ]
+  },
+  {
+   "start": 7.018,
+   "end": 7.707,
+   "scene": "breakdown",
+   "words": [
+    {
+     "w": "Every",
+     "accent": false,
+     "t": 7.018
+    },
+    {
+     "w": "cut.",
+     "accent": true,
+     "t": 7.389
+    }
+   ]
+  },
+  {
+   "start": 7.827,
+   "end": 8.832,
+   "scene": "breakdown",
+   "words": [
+    {
+     "w": "Every",
+     "accent": false,
+     "t": 7.827
+    },
+    {
+     "w": "transition.",
+     "accent": true,
+     "t": 8.179
+    }
+   ]
+  },
+  {
+   "start": 8.952,
+   "end": 10.004,
+   "scene": "breakdown",
+   "words": [
+    {
+     "w": "Every",
+     "accent": false,
+     "t": 8.952
+    },
+    {
+     "w": "single",
+     "accent": false,
+     "t": 9.287
+    },
+    {
+     "w": "beat.",
+     "accent": true,
+     "t": 9.67
+    }
+   ]
+  },
+  {
+   "start": 10.384,
+   "end": 11.205,
+   "scene": "clips",
+   "words": [
+    {
+     "w": "Then",
+     "accent": false,
+     "t": 10.384
+    },
+    {
+     "w": "you",
+     "accent": false,
+     "t": 10.674
+    },
+    {
+     "w": "drop",
+     "accent": false,
+     "t": 10.915
+    }
+   ]
+  },
+  {
+   "start": 11.325,
+   "end": 12.283,
+   "scene": "clips",
+   "words": [
+    {
+     "w": "your",
+     "accent": false,
+     "t": 11.325
+    },
+    {
+     "w": "raw",
+     "accent": true,
+     "t": 11.628
+    },
+    {
+     "w": "clips.",
+     "accent": false,
+     "t": 11.88
+    }
+   ]
+  },
+  {
+   "start": 12.663,
+   "end": 13.498,
+   "scene": "finds",
+   "words": [
+    {
+     "w": "It",
+     "accent": false,
+     "t": 12.663
+    },
+    {
+     "w": "finds",
+     "accent": true,
+     "t": 12.872
+    },
+    {
+     "w": "you",
+     "accent": false,
+     "t": 13.237
+    }
+   ]
+  },
+  {
+   "start": 13.618,
+   "end": 14.567,
+   "scene": "finds",
+   "words": [
+    {
+     "w": "in",
+     "accent": false,
+     "t": 13.618
+    },
+    {
+     "w": "every",
+     "accent": false,
+     "t": 13.818
+    },
+    {
+     "w": "frame,",
+     "accent": false,
+     "t": 14.167
+    }
+   ]
+  },
+  {
+   "start": 14.687,
+   "end": 15.438,
+   "scene": "finds",
+   "words": [
+    {
+     "w": "cuts",
+     "accent": false,
+     "t": 14.687
+    },
+    {
+     "w": "you",
+     "accent": false,
+     "t": 14.952
+    },
+    {
+     "w": "out,",
+     "accent": true,
+     "t": 15.173
+    }
+   ]
+  },
+  {
+   "start": 15.818,
+   "end": 16.811,
+   "scene": "glow",
+   "words": [
+    {
+     "w": "and",
+     "accent": false,
+     "t": 15.818
+    },
+    {
+     "w": "makes",
+     "accent": false,
+     "t": 16.025
+    },
+    {
+     "w": "you",
+     "accent": false,
+     "t": 16.314
+    },
+    {
+     "w": "glow,",
+     "accent": true,
+     "t": 16.521
+    }
+   ]
+  },
+  {
+   "start": 16.931,
+   "end": 17.861,
+   "scene": "glow",
+   "words": [
+    {
+     "w": "right",
+     "accent": false,
+     "t": 16.931
+    },
+    {
+     "w": "on",
+     "accent": false,
+     "t": 17.214
+    },
+    {
+     "w": "the",
+     "accent": false,
+     "t": 17.376
+    },
+    {
+     "w": "beat.",
+     "accent": true,
+     "t": 17.578
+    }
+   ]
+  },
+  {
+   "start": 18.241,
+   "end": 19.372,
+   "scene": "polish",
+   "words": [
+    {
+     "w": "It",
+     "accent": false,
+     "t": 18.241
+    },
+    {
+     "w": "grades",
+     "accent": false,
+     "t": 18.415
+    },
+    {
+     "w": "the",
+     "accent": false,
+     "t": 18.763
+    },
+    {
+     "w": "colors,",
+     "accent": true,
+     "t": 18.98
+    }
+   ]
+  },
+  {
+   "start": 19.492,
+   "end": 20.494,
+   "scene": "polish",
+   "words": [
+    {
+     "w": "adds",
+     "accent": false,
+     "t": 19.492
+    },
+    {
+     "w": "the",
+     "accent": false,
+     "t": 19.765
+    },
+    {
+     "w": "captions,",
+     "accent": true,
+     "t": 19.993
+    }
+   ]
+  },
+  {
+   "start": 20.614,
+   "end": 21.629,
+   "scene": "polish",
+   "words": [
+    {
+     "w": "and",
+     "accent": false,
+     "t": 20.614
+    },
+    {
+     "w": "syncs",
+     "accent": false,
+     "t": 20.817
+    },
+    {
+     "w": "the",
+     "accent": false,
+     "t": 21.101
+    },
+    {
+     "w": "music.",
+     "accent": true,
+     "t": 21.304
+    }
+   ]
+  },
+  {
+   "start": 22.009,
+   "end": 22.874,
+   "scene": "nope",
+   "words": [
+    {
+     "w": "No",
+     "accent": false,
+     "t": 22.009
+    },
+    {
+     "w": "timeline.",
+     "accent": true,
+     "t": 22.24
+    }
+   ]
+  },
+  {
+   "start": 22.994,
+   "end": 23.957,
+   "scene": "nope",
+   "words": [
+    {
+     "w": "No",
+     "accent": false,
+     "t": 22.994
+    },
+    {
+     "w": "keyframes.",
+     "accent": true,
+     "t": 23.235
+    }
+   ]
+  },
+  {
+   "start": 24.077,
+   "end": 25.039,
+   "scene": "nope",
+   "words": [
+    {
+     "w": "No",
+     "accent": false,
+     "t": 24.077
+    },
+    {
+     "w": "editing",
+     "accent": false,
+     "t": 24.28
+    },
+    {
+     "w": "app.",
+     "accent": true,
+     "t": 24.735
+    }
+   ]
+  },
+  {
+   "start": 25.419,
+   "end": 26.296,
+   "scene": "count",
+   "words": [
+    {
+     "w": "One",
+     "accent": false,
+     "t": 25.419
+    },
+    {
+     "w": "reference.",
+     "accent": true,
+     "t": 25.677
+    }
+   ]
+  },
+  {
+   "start": 26.416,
+   "end": 27.211,
+   "scene": "count",
+   "words": [
+    {
+     "w": "Four",
+     "accent": false,
+     "t": 26.416
+    },
+    {
+     "w": "clips.",
+     "accent": true,
+     "t": 26.757
+    }
+   ]
+  },
+  {
+   "start": 27.331,
+   "end": 28.099,
+   "scene": "count",
+   "words": [
+    {
+     "w": "One",
+     "accent": false,
+     "t": 27.331
+    },
+    {
+     "w": "prompt.",
+     "accent": true,
+     "t": 27.605
+    }
+   ]
+  },
+  {
+   "start": 28.479,
+   "end": 29.264,
+   "scene": "final",
+   "words": [
+    {
+     "w": "And",
+     "accent": false,
+     "t": 28.479
+    },
+    {
+     "w": "your",
+     "accent": false,
+     "t": 28.71
+    },
+    {
+     "w": "reel",
+     "accent": false,
+     "t": 28.987
+    }
+   ]
+  },
+  {
+   "start": 29.384,
+   "end": 30.471,
+   "scene": "final",
+   "words": [
+    {
+     "w": "is",
+     "accent": false,
+     "t": 29.384
+    },
+    {
+     "w": "ready",
+     "accent": false,
+     "t": 29.582
+    },
+    {
+     "w": "to",
+     "accent": false,
+     "t": 29.928
+    },
+    {
+     "w": "post.",
+     "accent": true,
+     "t": 30.125
+    }
+   ]
+  }
+ ],
+ "scenes": [
+  {
+   "id": "hook",
+   "start": 0.45
+  },
+  {
+   "id": "reference",
+   "start": 2.86
+  },
+  {
+   "id": "breakdown",
+   "start": 7.018
+  },
+  {
+   "id": "clips",
+   "start": 10.384
+  },
+  {
+   "id": "finds",
+   "start": 12.663
+  },
+  {
+   "id": "glow",
+   "start": 15.818
+  },
+  {
+   "id": "polish",
+   "start": 18.241
+  },
+  {
+   "id": "nope",
+   "start": 22.009
+  },
+  {
+   "id": "count",
+   "start": 25.419
+  },
+  {
+   "id": "final",
+   "start": 28.479
+  }
+ ]
+}
