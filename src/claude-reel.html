@@ -1,0 +1,171 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#120a08}canvas{display:block}</style>
+</head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+const W = 1080, H = 1920, FPS = 24, DUR = 16;
+const c = document.getElementById('c'), g = c.getContext('2d');
+const SERIF = '"Liberation Serif", "DejaVu Serif", serif';
+
+// deterministic RNG
+let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+const bokeh = Array.from({length: 46}, () => ({
+  x: rnd() * W, y: rnd() * H, r: 4 + rnd() * 16, a: 0.15 + rnd() * 0.45,
+  vx: (rnd() - .5) * 14, vy: -6 - rnd() * 14, ph: rnd() * 6.28
+}));
+
+// captions: [start, end, words]
+const CAPS = [
+  [0.8, 3.0, ['meet', 'Claude']],
+  [3.0, 5.4, ['your', 'thinking', 'partner']],
+  [5.4, 7.6, ['writes', 'your', 'code']],
+  [7.6, 9.8, ['cuts', 'your', 'reels']],
+  [9.8, 12.2, ['ships', 'while', 'you sleep']],
+  [12.2, 15.2, ['just', 'ask.']],
+];
+
+const ease = x => x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+
+// pixel critter: 0 empty, 1 body, 2 eye
+const SPRITE = [
+  '.11111111.',
+  '1111111111',
+  '1112112111',
+  '1112112111',
+  '1111111111',
+  '.11111111.',
+  '.1.1..1.1.',
+];
+function critter(x, y, px, t) {
+  const bob = Math.round(Math.sin(t * 9) * 1) * px * 0.5;
+  const step = Math.floor(t * 6) % 2;
+  g.save();
+  g.shadowColor = 'rgba(255,150,120,0.8)'; g.shadowBlur = 40;
+  SPRITE.forEach((row, j) => [...row].forEach((ch, i) => {
+    if (ch === '.') return;
+    let yy = y + j * px + bob;
+    if (j === 6) { // legs alternate
+      const odd = (i === 1 || i === 6);
+      if (odd === !!step) yy -= px * 0.4;
+    }
+    const blink = (t % 3.4) < 0.12;
+    if (ch === '2') g.fillStyle = blink ? '#f1a48c' : '#5a2a24';
+    else g.fillStyle = '#f1a48c';
+    g.fillRect(x + i * px, yy, px + 0.5, px + 0.5);
+  }));
+  g.restore();
+}
+
+function frame(t) {
+  // background gradient
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#1b0f0c'); bg.addColorStop(0.45, '#2c1812');
+  bg.addColorStop(0.67, '#241310'); bg.addColorStop(0.68, '#120907');
+  bg.addColorStop(1, '#0c0605');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+
+  // central breathing glow
+  const pulse = 0.85 + 0.15 * Math.sin(t * 1.3);
+  let rg = g.createRadialGradient(540, 880, 0, 540, 880, 620 * pulse);
+  rg.addColorStop(0, 'rgba(150,62,48,0.55)'); rg.addColorStop(0.5, 'rgba(110,44,34,0.25)');
+  rg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, W, H);
+  // side glow drifting
+  const sx = 940 + Math.sin(t * 0.4) * 40;
+  rg = g.createRadialGradient(sx, 780, 0, sx, 780, 260);
+  rg.addColorStop(0, 'rgba(160,80,60,0.28)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, W, H);
+
+  // horizon line glow
+  const hz = 1300;
+  let lg = g.createLinearGradient(0, hz - 40, 0, hz + 60);
+  lg.addColorStop(0, 'rgba(0,0,0,0)'); lg.addColorStop(0.45, 'rgba(10,4,3,0.85)');
+  lg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = lg; g.fillRect(0, hz - 40, W, 100);
+  g.strokeStyle = 'rgba(230,140,110,0.18)'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(0, hz + 6); g.lineTo(W, hz + 6); g.stroke();
+  // reflection on floor
+  rg = g.createRadialGradient(540, 1480, 0, 540, 1480, 520);
+  rg.addColorStop(0, 'rgba(120,50,40,0.22)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = rg; g.fillRect(0, hz, W, H - hz);
+
+  // ink-line drawing: slowly drawn constellation-ish curve
+  g.save();
+  g.strokeStyle = 'rgba(240,170,140,0.22)'; g.lineWidth = 2.2; g.lineCap = 'round';
+  g.shadowColor = 'rgba(255,140,100,0.6)'; g.shadowBlur = 14;
+  const prog = clamp(t / 6);
+  g.beginPath();
+  for (let i = 0; i <= 200 * prog; i++) {
+    const a = i / 200 * Math.PI * 2;
+    const r = 300 + 26 * Math.sin(a * 5 + t * 0.6);
+    const x = 540 + Math.cos(a - 1.57) * r, y = 880 + Math.sin(a - 1.57) * r;
+    i ? g.lineTo(x, y) : g.moveTo(x, y);
+  }
+  g.stroke(); g.restore();
+
+  // bokeh
+  bokeh.forEach(b => {
+    let x = (b.x + b.vx * t) % W; if (x < 0) x += W;
+    let y = (b.y + b.vy * t) % H; if (y < 0) y += H;
+    const tw = 0.6 + 0.4 * Math.sin(t * 1.7 + b.ph);
+    const gr = g.createRadialGradient(x, y, 0, x, y, b.r * 2.4);
+    gr.addColorStop(0, `rgba(255,200,180,${b.a * tw})`);
+    gr.addColorStop(1, 'rgba(255,200,180,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, b.r * 2.4, 0, 7); g.fill();
+  });
+
+  // title top-left (safe: > 220px from top)
+  const ti = ease(t / 1.2);
+  g.save();
+  g.globalAlpha = 0.85 * ti;
+  g.font = `italic bold 96px ${SERIF}`;
+  g.fillStyle = '#b86a58'; g.shadowColor = 'rgba(255,120,90,0.5)'; g.shadowBlur = 24;
+  g.fillText('Claude', 110 - (1 - ti) * 40, 300);
+  g.restore();
+
+  // captions (centre, well inside safe area)
+  for (const [a, b, words] of CAPS) {
+    if (t < a - 0.01 || t > b + 0.5) continue;
+    const inP = ease((t - a) / 0.45), outP = ease((t - b) / 0.45);
+    const alpha = inP * (1 - outP);
+    const dy = (1 - inP) * 40 - outP * 40;
+    g.save();
+    g.font = `italic 600 104px ${SERIF}`;
+    g.textBaseline = 'middle';
+    const sp = 28;
+    const widths = words.map(w => g.measureText(w).width);
+    const total = widths.reduce((p, q) => p + q, 0) + sp * (words.length - 1);
+    let x = (W - total) / 2;
+    const span = (b - a) / words.length;
+    words.forEach((w, i) => {
+      const active = t >= a + i * span && t < a + (i + 1) * span + (i === words.length - 1 ? 0.5 : 0);
+      g.globalAlpha = alpha * (active ? 1 : 0.42);
+      g.fillStyle = active ? '#ffd2bf' : '#d99a85';
+      g.shadowColor = active ? 'rgba(255,130,95,0.95)' : 'rgba(0,0,0,0)';
+      g.shadowBlur = active ? 38 : 0;
+      g.fillText(w, x, 880 + dy);
+      x += widths[i] + sp;
+    });
+    g.restore();
+  }
+
+  // critter walks along floor (non-text, may sit low)
+  const cx = -200 + ((t * 70) % (W + 400));
+  critter(cx, 1470, 18, t);
+  // faint reflection
+  g.save(); g.globalAlpha = 0.12; g.translate(0, 1470 * 2 + 7 * 18 + 10); g.scale(1, -1);
+  critter(cx, 1470, 18, t); g.restore();
+
+  // vignette + global fade in/out
+  const vg = g.createRadialGradient(540, 960, 400, 540, 960, 1250);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.65)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  const f = Math.min(clamp(t / 0.6), clamp((DUR - t) / 0.8));
+  if (f < 1) { g.fillStyle = `rgba(0,0,0,${1 - f})`; g.fillRect(0, 0, W, H); }
+}
+window.renderAt = t => { frame(t); return c.toDataURL('image/jpeg', 0.92); };
+window.META = { W, H, FPS, DUR };
+if (!navigator.webdriver) { const t0 = performance.now(); (function loop() { frame(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); })(); }
+</script></body></html>
