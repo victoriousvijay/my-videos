@@ -10,6 +10,7 @@ const path = require('path');
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   await page.goto('file://' + path.resolve(page_));
   await page.waitForFunction(() => window.renderAt);
+  await page.evaluate(() => window.ready);
   const { FPS, DUR } = await page.evaluate(() => window.META);
 
   if (flag === '--preview') {
