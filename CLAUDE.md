@@ -21,3 +21,6 @@ Every request in this repo = make a lyric video from an mp3 in the repo.
 
 ## Change requests
 Short Hinglish edits ("captions bade karo", "background dark karo") → change only that, re-render, commit the new mp4.
+
+## Clip edits from a reference video
+If the user sends their own clips to edit "like the reference", follow `reference/STYLE.md` + `reference/template.json` (glow-silhouette beat flashes, hard cuts, top caption, no IG outro, `reference/bgm.m4a`). Output `out/<name>.mp4`.
