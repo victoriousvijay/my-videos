@@ -1,0 +1,188 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"ISerif";font-style:italic;src:url(../assets/fonts/InstrumentSerif-Italic.woff2)}
+@font-face{font-family:"ISerif";font-style:normal;src:url(../assets/fonts/InstrumentSerif-Regular.woff2)}
+@font-face{font-family:"Inter";font-weight:100 900;src:url(../assets/fonts/Inter.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// Lyric edit over graded dance footage. Frames dir: ?frames=/abs/path (0001.jpg ...), 24 fps.
+const W = 1080, H = 1920, FPS = 24, NFR = +(new URLSearchParams(location.search).get('n') || 819), DUR = NFR / FPS;
+const FR = new URLSearchParams(location.search).get('frames');
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+const SERIF = '"ISerif", serif', SANS = '"Inter", sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lerp = (a, b, p) => a + (b - a) * p;
+const eOut = p => 1 - Math.pow(1 - clamp(p), 3), eIO = p => (p = clamp(p), p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const eExpo = p => (p = clamp(p), p >= 1 ? 1 : 1 - Math.pow(2, -10 * p));
+const eBack = p => { p = clamp(p); return 1 + 2.4 * Math.pow(p - 1, 3) + 1.4 * Math.pow(p - 1, 2); };
+let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---- timing (measured from the audio: 118 BPM, half-time kick 0.96 + k*1.016, vocal phrase gaps) ----
+const KICK0 = 0.96, KP = 1.016;
+const kick = t => t < KICK0 ? 0 : Math.exp(-((t - KICK0) % KP) * 7);
+// rows of words; '*' marks the one hero (emotional) word per line
+const LINES = [
+  [1.00, 4.30, [['*Qaabil-e-taareef'], ['tu']]],
+  [4.85, 8.10, [['*Apsara’on', 'jaisi'], ['huu-ba-huu']]],
+  [8.20, 12.05, [['Dikhe', '*nigaahon', 'ko', 'tu'], ['ku-ba-ku']]],
+  [12.30, 15.70, [['Tera', '*asar', 'hardam'], ['mere', 'ru-ba-ru']]],
+  [16.00, 18.95, [['*Mehbooba'], ['main', 'deevaana']]],
+  [19.10, 20.95, [['I', 'just', 'wanna'], ['tell', 'you', '*jaana']], 'sans'],
+  [21.30, 24.90, [['Teri', '*ada’on', 'ke'], ['qatre']]],
+  [25.20, 27.20, [['*Shabnami']]],
+  [27.30, 30.00, [['*Dilruba'], ['dil-nasheen']]],
+  [30.20, 33.00, [['Ba-khuda', 'tu'], ['*haseen']]],
+  [33.20, 33.95, [['Tere', 'jaisi', '*hoor'], ['na', 'koi']]],
+];
+const ACCENTS = [16.0, 21.3, 27.3, 33.2];          // section hits: flash + punch + leak
+const syl = w => Math.max(1, (w.toLowerCase().match(/[aeiouy]+/g) || []).length);
+// per-word sung times: syllable-weighted spread over the phrase
+LINES.forEach(L => {
+  const words = L[2].flat(), tot = words.reduce((a, w) => a + syl(w), 0), span = (L[1] - L[0]) * .82;
+  let acc = 0; L.times = words.map(w => { const t = L[0] + span * acc / tot; acc += syl(w); return t; });
+});
+
+// ---- atmosphere ----
+const dust = Array.from({length: 70}, () => ({x: rnd() * W, y: rnd() * H, r: 2 + rnd() * 10, a: .1 + rnd() * .35, vx: (rnd() - .5) * 20, vy: -10 - rnd() * 25, ph: rnd() * 7}));
+const dew = Array.from({length: 60}, () => ({x: rnd() * W, d: rnd() * 1.6, v: 500 + rnd() * 700, r: 2 + rnd() * 4}));
+const grains = [0, 1, 2].map(() => { const c = document.createElement('canvas'); c.width = 540; c.height = 960; const x = c.getContext('2d'), d = x.createImageData(540, 960);
+  for (let i = 0; i < d.data.length; i += 4) { const v = rnd() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); return c; });
+
+function sparkle(x, y, s, a) {
+  g.save(); g.translate(x, y); g.globalAlpha = a; g.fillStyle = '#fff4dc'; g.shadowColor = 'rgba(255,200,120,1)'; g.shadowBlur = 18;
+  g.beginPath(); g.moveTo(0, -s); g.quadraticCurveTo(0, 0, s, 0); g.quadraticCurveTo(0, 0, 0, s); g.quadraticCurveTo(0, 0, -s, 0); g.quadraticCurveTo(0, 0, 0, -s); g.fill(); g.restore();
+}
+function goldFill(x0, w) {
+  const gr = g.createLinearGradient(x0, 0, x0 + w, 0);
+  gr.addColorStop(0, '#ffe7b0'); gr.addColorStop(.45, '#f6b26b'); gr.addColorStop(.7, '#ffd2b8'); gr.addColorStop(1, '#ffe7b0'); return gr;
+}
+
+// ---- lyrics ----
+function drawLine(L, t) {
+  const [t0, t1, rows, style] = L;
+  const tIn = t0 - .25, tOut = t1 + .05;
+  if (t < tIn || t > tOut + .45) return;
+  const out = eIO((t - tOut) / .45);                       // exit: blur + rise + fade
+  const ROWY = rows.length === 1 ? [470] : [400, 560];
+  let wi = 0, heroBox = null;
+  g.save();
+  if (out > 0) { g.filter = `blur(${out * 18}px)`; g.globalAlpha = 1 - out; g.translate(0, -out * 60); }
+  rows.forEach((row, ri) => {
+    // measure & auto-fit
+    const spec = row.map(w => { const hero = w[0] === '*', txt = hero ? w.slice(1) : w;
+      const font = style === 'sans' && !hero ? `700 ${84}px ${SANS}` : `italic ${hero ? 170 : 110}px ${SERIF}`;
+      g.font = font; if (style === 'sans' && !hero) g.letterSpacing = '6px'; else g.letterSpacing = '0px';
+      return {hero, txt, font, w: g.measureText(style === 'sans' && !hero ? txt.toUpperCase() : txt).width, sans: style === 'sans' && !hero}; });
+    const gap = 28; let total = spec.reduce((a, s) => a + s.w, 0) + gap * (spec.length - 1);
+    const fit = Math.min(1, 960 / total); let x = W / 2 - total * fit / 2;
+    spec.forEach(s => {
+      const ws = L.times[wi++], p = clamp((t - ws) / .55), y = ROWY[ri] + (s.hero && rows.length > 1 && ri === 0 ? 10 : 0);
+      const w = s.w * fit, txt = s.sans ? s.txt.toUpperCase() : s.txt;
+      if (p > 0) {
+        g.save(); g.font = s.font; g.letterSpacing = s.sans ? '6px' : '0px'; g.textBaseline = 'alphabetic';
+        g.translate(x, y); g.scale(fit, fit);
+        if (s.hero) {               // hero: per-letter stagger, gold gradient, glow, shimmer
+          heroBox = {x: x, y, w};
+          let cx = 0;
+          [...txt].forEach((ch, i) => {
+            const cw = g.measureText(ch).width, q = clamp((t - ws - i * .035) / .5);
+            if (q > 0) { const e = eBack(q);
+              g.save(); g.translate(cx + cw / 2, (1 - e) * 70); g.scale(lerp(.6, 1, e), lerp(.6, 1, e)); g.globalAlpha = clamp(q * 2.5);
+              g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 24; g.fillStyle = '#2a120a'; g.fillText(ch, -cw / 2 + 3, 5);
+              g.shadowColor = 'rgba(255,165,90,.95)'; g.shadowBlur = 40 + 20 * kick(t);
+              g.fillStyle = goldFill(-cx - cw / 2, s.w); g.fillText(ch, -cw / 2, 0); g.restore(); }
+            cx += cw;
+          });
+          // shimmer sweep across hero word
+          const sp = ((t - ws - .4) % 2.2) / .7;
+          if (t > ws + .4 && sp < 1) { g.save(); g.globalCompositeOperation = 'source-atop';
+            g.restore();
+            g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = .55 * Math.sin(Math.PI * sp);
+            const sx = lerp(-80, s.w + 80, sp); const sg = g.createLinearGradient(sx - 60, 0, sx + 60, 0);
+            sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,250,235,.9)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+            g.fillStyle = sg; g.fillText(txt, 0, 0); g.restore(); }
+        } else {                    // normal word: mask rise reveal
+          g.beginPath(); g.rect(-20, -170, w / fit + 40, 215); g.clip();
+          const e = eExpo(p);
+          g.translate(0, (1 - e) * 130);
+          g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 22; g.fillStyle = s.sans ? '#ffe9dc' : '#fff3e8';
+          g.globalAlpha = clamp(p * 3); g.fillText(txt, 0, 0);
+          g.shadowColor = 'rgba(255,160,110,.5)'; g.shadowBlur = 18; g.fillText(txt, 0, 0);
+        }
+        g.restore();
+      }
+      x += w + gap * fit;
+    });
+  });
+  // ornament: gold rule with diamond drawn from centre
+  const op = eOut((t - t0 - .3) / .8), oy = (rows.length === 1 ? 470 : 560) + 70;
+  if (op > 0) { g.save(); g.strokeStyle = 'rgba(255,214,160,.85)'; g.lineWidth = 2.5; g.shadowColor = 'rgba(255,170,90,.9)'; g.shadowBlur = 12;
+    g.beginPath(); g.moveTo(540 - 200 * op, oy); g.lineTo(540 - 22, oy); g.moveTo(540 + 22, oy); g.lineTo(540 + 200 * op, oy); g.stroke();
+    g.translate(540, oy); g.rotate(Math.PI / 4 + (1 - op) * 2); g.fillStyle = '#ffd9a8'; g.fillRect(-7, -7, 14, 14); g.restore(); }
+  // sparkles around hero
+  if (heroBox) for (let i = 0; i < 4; i++) { const ph = (t * .9 + i * .27) % 1;
+    sparkle(heroBox.x + heroBox.w * ((i * .37 + .1) % 1), heroBox.y - 140 + (i % 2) * 150, 10 + 8 * Math.sin(Math.PI * ph), Math.sin(Math.PI * ph) * .9); }
+  g.restore();
+}
+
+// ---- frame ----
+const cache = new Map();
+const loadImg = i => { if (cache.has(i)) return cache.get(i);
+  const p = new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = `file://${FR}/${String(i).padStart(4, '0')}.jpg`; });
+  cache.set(i, p); if (cache.size > 6) cache.delete(cache.keys().next().value); return p; };
+
+async function frame(t) {
+  const fi = Math.min(NFR, Math.floor(t * FPS) + 1), img = await loadImg(fi);
+  // camera: slow drift + beat pulse + accent punch + shake
+  let punch = 0, shake = 0, flash = 0;
+  for (const A of ACCENTS) if (t >= A) { const k = t - A; punch += Math.exp(-k * 5) * .12; shake += Math.exp(-k * 9) * 16; if (k < .22) flash = Math.max(flash, 1 - k / .22); }
+  const z = 1.02 + .02 * Math.sin(t * .35) + .018 * kick(t) + punch;
+  const sx = Math.sin(t * 83) * shake, sy = Math.cos(t * 71) * shake;
+  const blur = 22 * (1 - eIO(t / .9));
+  g.save(); g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  if (blur > .3) g.filter = `blur(${blur}px)`;
+  g.translate(540 + sx, 900 + sy); g.scale(z, z); g.translate(-540, -900);
+  g.drawImage(img, 0, 0, W, H);
+  g.restore();
+  // chromatic split on accent hits
+  const ch = punch > .03 ? punch * 160 : 0;
+  if (ch > 1) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = .28;
+    g.filter = 'sepia(1) saturate(8) hue-rotate(-50deg)'; g.drawImage(cv, -ch, 0);
+    g.filter = 'sepia(1) saturate(8) hue-rotate(160deg)'; g.drawImage(cv, ch, 0); g.restore(); }
+  // legibility gradient (top) + warm grade wash
+  let gr = g.createLinearGradient(0, 0, 0, 900); gr.addColorStop(0, 'rgba(12,4,2,.72)'); gr.addColorStop(.6, 'rgba(12,4,2,.35)'); gr.addColorStop(1, 'rgba(12,4,2,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, W, 900);
+  g.save(); g.globalCompositeOperation = 'soft-light'; g.fillStyle = 'rgba(255,140,80,.22)'; g.fillRect(0, 0, W, H); g.restore();
+  // light leaks: slow drifting + bursts on accents
+  g.save(); g.globalCompositeOperation = 'screen';
+  const lx = 540 + Math.sin(t * .4) * 600, la = .16 + .1 * Math.sin(t * .7);
+  gr = g.createRadialGradient(lx, 200, 0, lx, 200, 800); gr.addColorStop(0, `rgba(255,150,80,${la})`); gr.addColorStop(1, 'rgba(255,120,60,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  for (const A of ACCENTS) { const k = t - A; if (k > -.15 && k < .8) { const a = Math.sin(Math.PI * clamp((k + .15) / .95)) * .6, x = lerp(-300, 1400, clamp((k + .15) / .95));
+    gr = g.createRadialGradient(x, 900, 0, x, 900, 1000); gr.addColorStop(0, `rgba(255,170,100,${a})`); gr.addColorStop(.5, `rgba(255,90,60,${a * .4})`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); } }
+  // floating dust / bokeh
+  dust.forEach(b => { let x = (b.x + b.vx * t) % W; if (x < 0) x += W; let y = (b.y + b.vy * t) % H; if (y < 0) y += H;
+    const a = b.a * (.5 + .5 * Math.sin(t * 2 + b.ph)) * (1 + kick(t) * .7), R = b.r * 2.4;
+    const bg = g.createRadialGradient(x, y, 0, x, y, R); bg.addColorStop(0, `rgba(255,215,180,${a})`); bg.addColorStop(1, 'rgba(255,200,160,0)'); g.fillStyle = bg; g.beginPath(); g.arc(x, y, R, 0, 7); g.fill(); });
+  // "Shabnami" (dew): glistening drops fall through the frame
+  if (t > 25 && t < 27.8) { const k = t - 25;
+    dew.forEach(d => { const y = (k - d.d) * d.v - 40; if (y < -40 || y > H) return;
+      g.globalAlpha = .8 * clamp(1 - Math.abs(k - 1.4) / 1.6); g.fillStyle = '#eaf4ff'; g.shadowColor = 'rgba(200,230,255,1)'; g.shadowBlur = 14;
+      g.beginPath(); g.ellipse(d.x, y, d.r, d.r * 2.6, 0, 0, 7); g.fill(); }); g.globalAlpha = 1; g.shadowBlur = 0; }
+  // "hoor": golden glow bloom at the end
+  if (t > 33.2) { const a = eOut((t - 33.2) / .8) * .35; gr = g.createRadialGradient(540, 470, 0, 540, 470, 900);
+    gr.addColorStop(0, `rgba(255,200,120,${a})`); gr.addColorStop(1, 'rgba(255,160,80,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
+  g.restore();
+  // lyrics (outside camera)
+  LINES.forEach(L => drawLine(L, t));
+  // vignette, flash, grain, fades
+  gr = g.createRadialGradient(540, 960, 450, 540, 960, 1280); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(8,2,0,.7)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  if (flash > 0) { g.fillStyle = `rgba(255,236,220,${flash * .45})`; g.fillRect(0, 0, W, H); }
+  g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = .09; g.drawImage(grains[Math.floor(t * FPS) % 3], 0, 0, W, H); g.restore();
+  const f = Math.min(clamp(t / .5), clamp((DUR - t) / .4)); if (f < 1) { g.fillStyle = `rgba(0,0,0,${1 - f})`; g.fillRect(0, 0, W, H); }
+}
+window.META = {W, H, FPS, DUR};
+window.ready = Promise.all([document.fonts.load(`italic 100px ${SERIF}`), document.fonts.load(`700 40px ${SANS}`)]);
+window.renderAt = async t => { await frame(t); return cv.toDataURL('image/jpeg', .93); };
+</script></body></html>
