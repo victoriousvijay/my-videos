@@ -6,7 +6,7 @@ const path = require('path');
 
 (async () => {
   const [page_, out, audio, flag, times] = process.argv.slice(2);
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: ['--allow-file-access-from-files'] });
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   await page.goto('file://' + path.resolve(page_));
   await page.waitForFunction(() => window.renderAt);
